@@ -1,0 +1,33 @@
+{
+  "name": "Scam Detective \u2014 Verified Skeptic",
+  "description": "Treated unsolicited support as the threat it is.\n\nThis is a soulbound (non-transferable) NFT awarded for completing the 'Fake Customer Support' mission in Scam Detective Web3 Safety Academy. It permanently certifies that the holder demonstrated understanding of this scam pattern.",
+  "image": "https://scam-detective.vercel.app/badges/fake-customer-support.svg",
+  "external_url": "https://scam-detective.vercel.app/missions/fake-customer-support",
+  "attributes": [
+    {
+      "trait_type": "Mission",
+      "value": "Fake Customer Support"
+    },
+    {
+      "trait_type": "Difficulty",
+      "value": "Beginner"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Common"
+    },
+    {
+      "trait_type": "XP Value",
+      "value": 110,
+      "display_type": "number"
+    },
+    {
+      "trait_type": "Soulbound",
+      "value": "Yes"
+    },
+    {
+      "trait_type": "Standard",
+      "value": "ERC-5192"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# Foundry artifacts
+out/
+cache/
+broadcast/
+docs/
+
+# Foundry libraries — re-installed via `forge install` (see README)
+lib/
+
+# secrets
+.env

@@ -25,6 +25,7 @@ import {
 import type { Mission, RedFlag, Verdict } from "@/lib/missions";
 import { useProfile } from "@/lib/profile";
 import { ConnectWalletButton } from "@/components/ConnectWalletButton";
+import { MintBadgeButton } from "@/components/MintBadgeButton";
 
 type Phase = "investigate" | "quiz" | "verdict" | "result";
 
@@ -690,6 +691,15 @@ function ResultPhase({
           </div>
         </div>
       </div>
+
+      {/* On-chain mint */}
+      {passed && (
+        <MintBadgeButton
+          slug={mission.slug}
+          badgeName={mission.badge.name}
+          badgeEmoji={mission.badge.emoji}
+        />
+      )}
 
       {/* Breakdown */}
       <div className="grid md:grid-cols-2 gap-5">

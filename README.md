@@ -4,7 +4,26 @@
 
 A gamified web3 safety education platform. Users play as a detective who investigates suspicious airdrops, phishing sites, fake support DMs, rugpull tokens, and malicious approvals. Each mission is a short detective case: review evidence, tag red flags, answer quiz questions, and deliver a verdict.
 
-## Phase 2 — Wallet auth + 5 playable cases (current)
+## Phase 3 — On-chain Layer (current)
+
+Soulbound badges deployed to Base Sepolia via Foundry. Frontend mints + reads on-chain status.
+
+- ✅ `SafetyBadge.sol` — ERC-721 + EIP-5192 soulbound (locked, non-transferable). 1 badge per (wallet, missionId)
+- ✅ `ReputationScore.sol` — read-only aggregator: total XP, badge count, ownership flags per wallet
+- ✅ Foundry test suite: 15/15 passing (mint, double-mint revert, all transfer paths blocked, EIP-5192 interface, URI override)
+- ✅ Deploy script with all 5 missions auto-configured
+- ✅ Static badge metadata + SVG renderings in `public/badges/<slug>.json` + `<slug>.svg`
+- ✅ Frontend hook `useMintBadge` — wallet pending → tx pending → confirmed → already-minted state machine
+- ✅ Mint button on result screen (after passing a case): free mint, gas-only
+- ✅ Profile page: on-chain badge indicator, total certified XP, Basescan deep-link
+- 🚧 Awaiting Base Sepolia faucet funding before live deploy
+
+### Phase 3B — Vercel + verified contracts (next)
+- Deploy frontend to Vercel
+- Verify both contracts on Basescan
+- Set `BADGE_BASE_URI` to the deployed URL so tokenURI metadata resolves
+
+## Phase 2 — Wallet auth + 5 playable cases
 
 Wallet login (MetaMask, OKX, EIP-6963 multi-injected) + local persistence + all 5 cases playable end-to-end.
 

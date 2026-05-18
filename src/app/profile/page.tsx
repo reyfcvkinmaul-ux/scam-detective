@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import {
   ArrowLeft,
   ShieldCheck,
@@ -12,16 +12,52 @@ import {
   Wallet,
   Award,
   Calendar,
+  ExternalLink,
+  CheckCircle2,
 } from "lucide-react";
 import { useScopeData, useProfile } from "@/lib/profile";
 import { ConnectWalletButton } from "@/components/ConnectWalletButton";
 import { MISSIONS } from "@/lib/missions";
+import {
+  CONTRACTS,
+  BASE_SEPOLIA_CHAIN_ID,
+  BASESCAN_BASE,
+  isContractsConfigured,
+  missionIdOf,
+  reputationScoreAbi,
+} from "@/lib/contracts";
+
+const MISSION_IDS = MISSIONS.map((m) => missionIdOf(m.slug));
 
 export default function ProfilePage() {
   const { address } = useAccount();
   const data = useScopeData();
   const scope = useProfile((s) => s.scope);
   const isGuest = scope === "guest";
+  const onchainEnabled = isContractsConfigured() && !!address;
+
+  // Read on-chain badge ownership in one batch via ReputationScore
+  const { data: ownsArray } = useReadContract({
+    address: CONTRACTS.reputationScore,
+    abi: reputationScoreAbi,
+    functionName: "ownsBadges",
+    args: address ? [address, MISSION_IDS] : undefined,
+    chainId: BASE_SEPOLIA_CHAIN_ID,
+    query: { enabled: onchainEnabled },
+  });
+
+  const { data: onchainXp } = useReadContract({
+    address: CONTRACTS.reputationScore,
+    abi: reputationScoreAbi,
+    functionName: "xpFor",
+    args: address ? [address, MISSION_IDS] : undefined,
+    chainId: BASE_SEPOLIA_CHAIN_ID,
+    query: { enabled: onchainEnabled },
+  });
+
+  const onchainBadges = (ownsArray as boolean[] | undefined) ?? [];
+  const onchainBadgeCount = onchainBadges.filter(Boolean).length;
+  const onchainXpNum = onchainXp ? Number(onchainXp as bigint) : 0;
 
   const totalMissions = MISSIONS.length;
   const passed = data.history.filter((h) => h.passed).length;
@@ -74,6 +110,35 @@ export default function ProfilePage() {
         />
       </section>
 
+      {/* On-chain panel */}
+      {onchainEnabled && (
+        <section className="relative max-w-6xl mx-auto px-6 mt-8">
+          <div className="panel p-5 flex items-center gap-4 flex-wrap">
+            <div className="w-10 h-10 rounded-md bg-gradient-to-br from-neon-blue to-neon-purple grid place-items-center shadow-glow shrink-0">
+              <CheckCircle2 className="w-5 h-5 text-bg-base" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-mono text-ink-low">ON-CHAIN STATUS · BASE SEPOLIA</div>
+              <div className="text-sm mt-0.5">
+                <span className="text-ink-hi font-medium">{onchainBadgeCount}</span>
+                <span className="text-ink-mid"> soulbound badges minted</span>
+                <span className="text-ink-low"> · </span>
+                <span className="text-ink-hi font-medium">{onchainXpNum} XP</span>
+                <span className="text-ink-mid"> certified</span>
+              </div>
+            </div>
+            <a
+              href={`${BASESCAN_BASE}/address/${address}`}
+              target="_blank"
+              rel="noreferrer"
+              className="btn-ghost text-xs inline-flex items-center gap-1"
+            >
+              View on Basescan <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </section>
+      )}
+
       {/* Badge gallery */}
       <section className="relative max-w-6xl mx-auto px-6 mt-12">
         <div className="flex items-center gap-2 mb-4">
@@ -94,8 +159,9 @@ export default function ProfilePage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {MISSIONS.map((m) => {
+            {MISSIONS.map((m, idx) => {
               const earned = data.badges.find((b) => b.missionSlug === m.slug);
+              const onchain = onchainBadges[idx] === true;
               return (
                 <BadgeTile
                   key={m.slug}
@@ -105,6 +171,7 @@ export default function ProfilePage() {
                   rarity={m.badge.rarity}
                   earned={!!earned}
                   earnedAt={earned?.unlockedAt}
+                  onchain={onchain}
                 />
               );
             })}
@@ -190,6 +257,7 @@ function BadgeTile({
   rarity,
   earned,
   earnedAt,
+  onchain,
 }: {
   emoji: string;
   name: string;
@@ -197,19 +265,26 @@ function BadgeTile({
   rarity: string;
   earned: boolean;
   earnedAt?: number;
+  onchain?: boolean;
 }) {
   return (
     <motion.div
       whileHover={earned ? { y: -2 } : {}}
-      className={`panel p-4 text-center transition-all ${earned ? "border-neon-purple/30" : "opacity-40"}`}
+      className={`panel p-4 text-center transition-all ${earned ? "border-neon-purple/30" : "opacity-40"} ${onchain ? "border-ok/40 shadow-[0_0_24px_rgba(16,185,129,0.15)]" : ""}`}
     >
       <div className={`text-5xl mb-3 ${earned ? "" : "grayscale"}`}>{emoji}</div>
       <div className="text-sm font-semibold leading-tight">{name}</div>
       <div className="text-xs text-ink-low mt-1.5 line-clamp-2 min-h-[2.4em]">{desc}</div>
-      <div className="mt-3 flex items-center justify-center">
-        <span className={`chip ${earned ? "chip-ok" : ""} text-[10px]`}>
-          {earned ? "Earned" : rarity}
-        </span>
+      <div className="mt-3 flex items-center justify-center gap-1">
+        {onchain ? (
+          <span className="chip chip-ok text-[10px]">
+            <CheckCircle2 className="w-3 h-3" /> On-chain
+          </span>
+        ) : (
+          <span className={`chip ${earned ? "chip-ok" : ""} text-[10px]`}>
+            {earned ? "Earned" : rarity}
+          </span>
+        )}
       </div>
       {earned && earnedAt && (
         <div className="mt-2 text-[10px] text-ink-low font-mono">
