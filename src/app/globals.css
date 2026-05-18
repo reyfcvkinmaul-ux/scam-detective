@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #06070d;
+  color: #e6edf3;
+  min-height: 100%;
+}
+
+body {
+  background-image:
+    radial-gradient(1200px 600px at 50% -10%, rgba(124, 58, 237, 0.18), transparent 60%),
+    radial-gradient(800px 400px at 90% 10%, rgba(34, 211, 238, 0.12), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Subtle grid backdrop helper */
+.bg-cyber-grid {
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Glass panel */
+.panel {
+  background: linear-gradient(180deg, rgba(17, 20, 32, 0.85), rgba(12, 14, 24, 0.85));
+  border: 1px solid rgba(34, 211, 238, 0.12);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.03) inset,
+    0 0 0 1px rgba(34, 211, 238, 0.06);
+  border-radius: 14px;
+}
+
+.panel-warn {
+  border-color: rgba(239, 68, 68, 0.3);
+  box-shadow:
+    0 0 0 1px rgba(239, 68, 68, 0.12),
+    0 0 24px rgba(239, 68, 68, 0.18);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #22d3ee 0%, #a855f7 100%);
+  color: #06070d;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.7rem 1.2rem;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 24px rgba(34, 211, 238, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 32px rgba(168, 85, 247, 0.45);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #e6edf3;
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  border-radius: 10px;
+  padding: 0.65rem 1.1rem;
+  transition: all 0.15s ease;
+}
+
+.btn-ghost:hover {
+  border-color: rgba(34, 211, 238, 0.5);
+  background: rgba(34, 211, 238, 0.06);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chip-warn {
+  color: #fb7185;
+  border-color: rgba(251, 113, 133, 0.4);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.chip-ok {
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.chip-info {
+  color: #67e8f9;
+  border-color: rgba(34, 211, 238, 0.35);
+  background: rgba(34, 211, 238, 0.08);
+}
+
+/* Red flag highlight - clickable evidence spans */
+.redflag {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  border-bottom: 1.5px dashed rgba(239, 68, 68, 0.45);
+  transition: all 0.15s ease;
+}
+
+.redflag:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #fecaca;
+}
+
+.redflag.flagged {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fecaca;
+  border-bottom-style: solid;
+  border-bottom-color: #ef4444;
+  border-radius: 3px;
+  padding: 0 3px;
+}
+
+/* Scanline overlay for that detective vibe */
+.scanline {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanline::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(168, 85, 247, 0.04) 0 1px,
+    transparent 1px 3px
+  );
+  pointer-events: none;
+}
+
+/* Mono code-like terminal block */
+.term {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  background: #050609;
+  border: 1px solid rgba(34, 211, 238, 0.15);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  color: #c8d3df;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Gradient text */
+.text-gradient {
+  background: linear-gradient(135deg, #22d3ee 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Focus rings */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid rgba(34, 211, 238, 0.6);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Hide scrollbar in tab strip */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
