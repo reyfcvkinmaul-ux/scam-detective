@@ -4,7 +4,22 @@
 
 A gamified web3 safety education platform. Users play as a detective who investigates suspicious airdrops, phishing sites, fake support DMs, rugpull tokens, and malicious approvals. Each mission is a short detective case: review evidence, tag red flags, answer quiz questions, and deliver a verdict.
 
-## Phase 1 — MVP (this commit)
+## Phase 2 — Wallet auth + 5 playable cases (current)
+
+Wallet login (MetaMask, OKX, EIP-6963 multi-injected) + local persistence + all 5 cases playable end-to-end.
+
+- ✅ wagmi v2 + viem, configured for Base Sepolia
+- ✅ Connect modal: MetaMask, OKX Wallet, plus generic injected (Rabby/Trust/Frame/etc)
+- ✅ Wallet badge in header with copy/profile/disconnect dropdown, wrong-chain switch hint
+- ✅ Zustand profile store, persisted to localStorage, scoped per wallet address (or "guest")
+- ✅ Per-mission completion tracking: best-score wins, XP delta only on improvement
+- ✅ Daily streak counter (current + longest)
+- ✅ Soulbound badges collected per mission slug
+- ✅ Mission dashboard: completion checkmarks, score chips, retry indicator, total XP/badges/streak
+- ✅ Profile page: badge gallery, stat cards, recent activity timeline
+- ✅ All 5 cases populated and playable: Free Airdrop, Seed Phrase Phishing, Rugpull Token, Fake Customer Support, Malicious Approval
+
+## Phase 1 — MVP (initial commit)
 
 Frontend-only, no wallet, no backend, no contracts. Five mission categories, **one playable case** end-to-end:
 
@@ -22,6 +37,11 @@ Frontend-only, no wallet, no backend, no contracts. Five mission categories, **o
 - Supabase (Postgres) for user progress, mission history, leaderboard
 - 4 more playable cases (Seed Phrase Phishing, Rugpull Token, Fake Support, Malicious Approval)
 - Daily streaks, weekly missions
+
+### Phase 2B — Sync + Leaderboard (next)
+- Supabase + SIWE for cross-device sync
+- Public seasonal leaderboard
+- Daily challenge endpoint with curated case-of-the-day
 
 ### Phase 3 — On-chain Layer
 - `SafetyBadge` (ERC-5192 soulbound) on Base Sepolia

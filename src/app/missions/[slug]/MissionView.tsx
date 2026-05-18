@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -23,6 +23,8 @@ import {
   Clock,
 } from "lucide-react";
 import type { Mission, RedFlag, Verdict } from "@/lib/missions";
+import { useProfile } from "@/lib/profile";
+import { ConnectWalletButton } from "@/components/ConnectWalletButton";
 
 type Phase = "investigate" | "quiz" | "verdict" | "result";
 
@@ -80,11 +82,14 @@ export function MissionView({ mission }: { mission: Mission }) {
           <ArrowLeft className="w-4 h-4" />
           All cases
         </Link>
-        <div className="flex items-center gap-2 font-semibold text-sm">
-          <div className="w-6 h-6 rounded-md bg-gradient-to-br from-neon-blue to-neon-purple grid place-items-center shadow-glow">
-            <ShieldCheck className="w-3 h-3 text-bg-base" />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 font-semibold text-sm">
+            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-neon-blue to-neon-purple grid place-items-center shadow-glow">
+              <ShieldCheck className="w-3 h-3 text-bg-base" />
+            </div>
+            Scam Detective
           </div>
-          Scam Detective
+          <ConnectWalletButton />
         </div>
       </header>
 
@@ -629,6 +634,24 @@ function ResultPhase({
   answers: Record<string, number>;
   onReset: () => void;
 }) {
+  const recordCompletion = useProfile((s) => s.recordCompletion);
+  const scope = useProfile((s) => s.scope);
+
+  // Persist completion exactly once per mount
+  useEffect(() => {
+    recordCompletion({
+      slug: mission.slug,
+      score,
+      xp: xpEarned,
+      passed,
+      badge: passed ? mission.badge.name : undefined,
+      badgeEmoji: passed ? mission.badge.emoji : undefined,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const isWalletConnected = scope !== "guest";
+
   return (
     <div className="space-y-6">
       {/* Hero result */}
@@ -749,9 +772,16 @@ function ResultPhase({
         <button onClick={onReset} className="btn-ghost text-sm">
           Replay case
         </button>
-        <Link href="/missions" className="btn-primary text-sm">
-          Back to missions <ArrowRight className="w-3.5 h-3.5 inline -mt-0.5 ml-1" />
-        </Link>
+        <div className="flex items-center gap-2">
+          {!isWalletConnected && passed && (
+            <span className="text-xs text-ink-low hidden md:inline">
+              Connect wallet to keep this badge in your profile →
+            </span>
+          )}
+          <Link href="/missions" className="btn-primary text-sm">
+            Back to missions <ArrowRight className="w-3.5 h-3.5 inline -mt-0.5 ml-1" />
+          </Link>
+        </div>
       </div>
     </div>
   );

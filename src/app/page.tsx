@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ShieldCheck, Sparkles, Eye, Trophy, ArrowRight, Wallet, Lock } from "lucide-react";
+import { ConnectWalletButton } from "@/components/ConnectWalletButton";
 
 export default function HomePage() {
   return (
@@ -162,9 +163,10 @@ function Nav() {
         <Link href="/missions" className="text-ink-mid hover:text-ink-hi px-3 py-2 rounded-md transition-colors">
           Missions
         </Link>
-        <Link href="/missions" className="btn-ghost text-sm">
-          Start Investigation
+        <Link href="/profile" className="text-ink-mid hover:text-ink-hi px-3 py-2 rounded-md transition-colors">
+          Profile
         </Link>
+        <ConnectWalletButton />
       </nav>
     </header>
   );

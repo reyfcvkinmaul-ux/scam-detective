@@ -3,9 +3,27 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { MISSIONS } from "@/lib/missions";
-import { ShieldCheck, ArrowLeft, Lock, Clock, Trophy, ArrowRight, Sparkles } from "lucide-react";
+import { useProfile, useScopeData } from "@/lib/profile";
+import { ConnectWalletButton } from "@/components/ConnectWalletButton";
+import {
+  ArrowLeft,
+  Lock,
+  Clock,
+  Trophy,
+  ArrowRight,
+  Sparkles,
+  CheckCircle2,
+  User,
+} from "lucide-react";
 
 export default function MissionsPage() {
+  const data = useScopeData();
+  const scope = useProfile((s) => s.scope);
+  const isGuest = scope === "guest";
+
+  const completedSlugs = new Set(data.history.filter((h) => h.passed).map((h) => h.slug));
+  const completedCount = completedSlugs.size;
+
   return (
     <main className="relative min-h-screen">
       <div className="absolute inset-0 bg-cyber-grid opacity-25 pointer-events-none" />
@@ -15,11 +33,12 @@ export default function MissionsPage() {
           <ArrowLeft className="w-4 h-4" />
           <span className="text-sm">Back</span>
         </Link>
-        <div className="flex items-center gap-2 font-semibold">
-          <div className="w-7 h-7 rounded-md bg-gradient-to-br from-neon-blue to-neon-purple grid place-items-center shadow-glow">
-            <ShieldCheck className="w-3.5 h-3.5 text-bg-base" />
-          </div>
-          Scam Detective
+        <div className="flex items-center gap-4">
+          <Link href="/profile" className="text-sm text-ink-mid hover:text-ink-hi inline-flex items-center gap-1.5">
+            <User className="w-4 h-4" />
+            Profile
+          </Link>
+          <ConnectWalletButton />
         </div>
       </header>
 
@@ -34,39 +53,70 @@ export default function MissionsPage() {
               Pick a <span className="text-gradient">case</span>
             </h1>
             <p className="text-ink-mid mt-2 max-w-xl">
-              Five categories. One playable in this MVP — the rest unlock as we add them.
+              Five categories. All five playable. Connect a wallet to claim badges and persist progress.
             </p>
           </div>
-          <ProgressStrip />
+          <ProgressStrip
+            solved={completedCount}
+            total={MISSIONS.length}
+            xp={data.totalXp}
+            badges={data.badges.length}
+            streak={data.streak.current}
+          />
         </div>
+        {isGuest && completedCount > 0 && (
+          <div className="mt-4 panel p-4 flex items-center gap-3 text-sm">
+            <Sparkles className="w-4 h-4 text-neon-blue shrink-0" />
+            <span className="text-ink-mid">
+              You have local progress as a guest. Connect a wallet to claim your badges and have them stick to your address.
+            </span>
+          </div>
+        )}
       </section>
 
       <section className="relative max-w-6xl mx-auto px-6 pb-24">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {MISSIONS.map((m, i) => (
-            <motion.div
-              key={m.slug}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.05 }}
-            >
-              <MissionCard mission={m} />
-            </motion.div>
-          ))}
+          {MISSIONS.map((m, i) => {
+            const completion = data.history.find((h) => h.slug === m.slug);
+            return (
+              <motion.div
+                key={m.slug}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+              >
+                <MissionCard mission={m} completedScore={completion?.score} passed={completion?.passed} />
+              </motion.div>
+            );
+          })}
         </div>
       </section>
     </main>
   );
 }
 
-function ProgressStrip() {
+function ProgressStrip({
+  solved,
+  total,
+  xp,
+  badges,
+  streak,
+}: {
+  solved: number;
+  total: number;
+  xp: number;
+  badges: number;
+  streak: number;
+}) {
   return (
-    <div className="panel px-5 py-4 flex items-center gap-6">
-      <Stat label="Cases solved" value="0 / 5" />
+    <div className="panel px-5 py-4 flex items-center gap-5 flex-wrap">
+      <Stat label="Cases" value={`${solved} / ${total}`} />
       <div className="w-px h-8 bg-bg-line" />
-      <Stat label="XP" value="0" />
+      <Stat label="XP" value={String(xp)} />
       <div className="w-px h-8 bg-bg-line" />
-      <Stat label="Badges" value="0" />
+      <Stat label="Badges" value={String(badges)} />
+      <div className="w-px h-8 bg-bg-line" />
+      <Stat label="Streak" value={streak > 0 ? `${streak}🔥` : "—"} />
     </div>
   );
 }
@@ -80,14 +130,22 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function MissionCard({ mission }: { mission: (typeof MISSIONS)[number] }) {
+function MissionCard({
+  mission,
+  completedScore,
+  passed,
+}: {
+  mission: (typeof MISSIONS)[number];
+  completedScore?: number;
+  passed?: boolean;
+}) {
   const locked = !mission.available;
 
   const cardInner = (
     <div
       className={`panel scanline p-5 h-full flex flex-col ${
         locked ? "opacity-60" : "hover:border-neon-blue/40 transition-all hover:-translate-y-0.5"
-      }`}
+      } ${passed ? "border-ok/30" : ""}`}
     >
       <div className="flex items-start justify-between mb-3">
         <span className="chip chip-info text-[10px] uppercase tracking-wider">{mission.category}</span>
@@ -95,6 +153,12 @@ function MissionCard({ mission }: { mission: (typeof MISSIONS)[number] }) {
           <span className="chip text-ink-low">
             <Lock className="w-3 h-3" /> Soon
           </span>
+        ) : passed ? (
+          <span className="chip chip-ok">
+            <CheckCircle2 className="w-3 h-3" /> Passed · {completedScore}
+          </span>
+        ) : completedScore !== undefined ? (
+          <span className="chip chip-warn">Retry · last {completedScore}</span>
         ) : (
           <span className="chip chip-ok">Playable</span>
         )}
@@ -122,7 +186,7 @@ function MissionCard({ mission }: { mission: (typeof MISSIONS)[number] }) {
         </div>
         {!locked && (
           <span className="text-neon-blue text-sm inline-flex items-center gap-1">
-            Open <ArrowRight className="w-3.5 h-3.5" />
+            {passed ? "Replay" : "Open"} <ArrowRight className="w-3.5 h-3.5" />
           </span>
         )}
       </div>
