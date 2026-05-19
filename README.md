@@ -4,24 +4,27 @@
 
 A gamified web3 safety education platform. Users play as a detective who investigates suspicious airdrops, phishing sites, fake support DMs, rugpull tokens, and malicious approvals. Each mission is a short detective case: review evidence, tag red flags, answer quiz questions, and deliver a verdict.
 
-## Phase 3 — On-chain Layer (current)
+## Phase 3 — On-chain Layer (deployed ✓)
 
-Soulbound badges deployed to Base Sepolia via Foundry. Frontend mints + reads on-chain status.
+Soulbound badges live on Base Sepolia.
 
-- ✅ `SafetyBadge.sol` — ERC-721 + EIP-5192 soulbound (locked, non-transferable). 1 badge per (wallet, missionId)
-- ✅ `ReputationScore.sol` — read-only aggregator: total XP, badge count, ownership flags per wallet
-- ✅ Foundry test suite: 15/15 passing (mint, double-mint revert, all transfer paths blocked, EIP-5192 interface, URI override)
-- ✅ Deploy script with all 5 missions auto-configured
-- ✅ Static badge metadata + SVG renderings in `public/badges/<slug>.json` + `<slug>.svg`
-- ✅ Frontend hook `useMintBadge` — wallet pending → tx pending → confirmed → already-minted state machine
-- ✅ Mint button on result screen (after passing a case): free mint, gas-only
-- ✅ Profile page: on-chain badge indicator, total certified XP, Basescan deep-link
-- 🚧 Awaiting Base Sepolia faucet funding before live deploy
+| Contract | Address |
+|----------|---------|
+| SafetyBadge (ERC-5192 SBT)  | [`0xF94c8ccd776d5b13095199B57F775AfDA9AE6E81`](https://sepolia.basescan.org/address/0xF94c8ccd776d5b13095199B57F775AfDA9AE6E81) |
+| ReputationScore             | [`0x4F4B5A00D9b6DC8659947b7AF97855A29978f7FC`](https://sepolia.basescan.org/address/0x4F4B5A00D9b6DC8659947b7AF97855A29978f7FC) |
 
-### Phase 3B — Vercel + verified contracts (next)
+- ✅ ERC-721 + EIP-5192 soulbound (locked, non-transferable). 1 badge per (wallet, missionId)
+- ✅ ReputationScore aggregator: total XP + badge count read on-chain
+- ✅ Foundry test suite: 15/15 passing
+- ✅ All 5 missions configured at deploy time
+- ✅ E2E verified on-chain: token #1 minted, `locked()` = true, ReputationScore reads 120 XP
+- ✅ Source verification submitted to Sourcify
+- ✅ Frontend mint button live, profile shows on-chain status
+
+### Phase 3B — Vercel + Verified Etherscan (next)
 - Deploy frontend to Vercel
-- Verify both contracts on Basescan
-- Set `BADGE_BASE_URI` to the deployed URL so tokenURI metadata resolves
+- Verify both contracts on Basescan (needs free API key from basescan.org)
+- Optional: server-signed proofs (EIP-712) so users can't mint without actually passing a case
 
 ## Phase 2 — Wallet auth + 5 playable cases
 
