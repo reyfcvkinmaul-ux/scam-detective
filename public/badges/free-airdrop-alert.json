@@ -1,8 +1,8 @@
 {
   "name": "Scam Detective \u2014 Phishing Survivor",
   "description": "Survived a fake airdrop bait without losing funds.\n\nThis is a soulbound (non-transferable) NFT awarded for completing the 'Fake Airdrop' mission in Scam Detective Web3 Safety Academy. It permanently certifies that the holder demonstrated understanding of this scam pattern.",
-  "image": "https://scam-detective.vercel.app/badges/free-airdrop-alert.svg",
-  "external_url": "https://scam-detective.vercel.app/missions/free-airdrop-alert",
+  "image": "https://scam-detective-zeta.vercel.app/badges/free-airdrop-alert.svg",
+  "external_url": "https://scam-detective-zeta.vercel.app/missions/free-airdrop-alert",
   "attributes": [
     {
       "trait_type": "Mission",

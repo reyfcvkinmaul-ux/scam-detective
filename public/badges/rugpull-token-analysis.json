@@ -1,8 +1,8 @@
 {
   "name": "Scam Detective \u2014 Liquidity Watcher",
   "description": "Read the contract before aping in. Spotted the rug pin.\n\nThis is a soulbound (non-transferable) NFT awarded for completing the 'Rugpull Token' mission in Scam Detective Web3 Safety Academy. It permanently certifies that the holder demonstrated understanding of this scam pattern.",
-  "image": "https://scam-detective.vercel.app/badges/rugpull-token-analysis.svg",
-  "external_url": "https://scam-detective.vercel.app/missions/rugpull-token-analysis",
+  "image": "https://scam-detective-zeta.vercel.app/badges/rugpull-token-analysis.svg",
+  "external_url": "https://scam-detective-zeta.vercel.app/missions/rugpull-token-analysis",
   "attributes": [
     {
       "trait_type": "Mission",

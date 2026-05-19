@@ -1,8 +1,8 @@
 {
   "name": "Scam Detective \u2014 Approval Auditor",
   "description": "Decoded malicious calldata before signing.\n\nThis is a soulbound (non-transferable) NFT awarded for completing the 'Malicious Approval' mission in Scam Detective Web3 Safety Academy. It permanently certifies that the holder demonstrated understanding of this scam pattern.",
-  "image": "https://scam-detective.vercel.app/badges/malicious-approval.svg",
-  "external_url": "https://scam-detective.vercel.app/missions/malicious-approval",
+  "image": "https://scam-detective-zeta.vercel.app/badges/malicious-approval.svg",
+  "external_url": "https://scam-detective-zeta.vercel.app/missions/malicious-approval",
   "attributes": [
     {
       "trait_type": "Mission",

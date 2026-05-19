@@ -1,8 +1,8 @@
 {
   "name": "Scam Detective \u2014 Vault Keeper",
   "description": "Refused to expose your seed phrase under social pressure.\n\nThis is a soulbound (non-transferable) NFT awarded for completing the 'Seed Phrase Phishing' mission in Scam Detective Web3 Safety Academy. It permanently certifies that the holder demonstrated understanding of this scam pattern.",
-  "image": "https://scam-detective.vercel.app/badges/seed-phrase-phishing.svg",
-  "external_url": "https://scam-detective.vercel.app/missions/seed-phrase-phishing",
+  "image": "https://scam-detective-zeta.vercel.app/badges/seed-phrase-phishing.svg",
+  "external_url": "https://scam-detective-zeta.vercel.app/missions/seed-phrase-phishing",
   "attributes": [
     {
       "trait_type": "Mission",
