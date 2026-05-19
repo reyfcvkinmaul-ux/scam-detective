@@ -9,10 +9,10 @@ const fromEnv = (name: string): Address | undefined => {
 };
 
 // After deploy, paste the addresses here OR set NEXT_PUBLIC_* env vars in Vercel.
-// Phase 3 deploy: Base Sepolia (chain 84532), tx broadcast 2026-05-19
+// Phase 4 deploy (V2 with EIP-712 signed mint proofs): chain 84532
 const HARDCODED = {
-  safetyBadge: "0xF94c8ccd776d5b13095199B57F775AfDA9AE6E81" as Address,
-  reputationScore: "0x4F4B5A00D9b6DC8659947b7AF97855A29978f7FC" as Address,
+  safetyBadge: "0xf24Da065E40F29a3d8d6ed20cce9bf3ce85e6869" as Address,
+  reputationScore: "0x981421c66FB79350b4d3D947C84F6593b2891c1C" as Address,
 };
 
 export const CONTRACTS = {

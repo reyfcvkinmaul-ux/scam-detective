@@ -698,6 +698,7 @@ function ResultPhase({
           slug={mission.slug}
           badgeName={mission.badge.name}
           badgeEmoji={mission.badge.emoji}
+          passed={passed}
         />
       )}
 

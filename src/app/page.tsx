@@ -163,6 +163,9 @@ function Nav() {
         <Link href="/missions" className="text-ink-mid hover:text-ink-hi px-3 py-2 rounded-md transition-colors">
           Missions
         </Link>
+        <Link href="/leaderboard" className="text-ink-mid hover:text-ink-hi px-3 py-2 rounded-md transition-colors">
+          Leaderboard
+        </Link>
         <Link href="/profile" className="text-ink-mid hover:text-ink-hi px-3 py-2 rounded-md transition-colors">
           Profile
         </Link>

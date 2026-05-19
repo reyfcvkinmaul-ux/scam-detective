@@ -4,6 +4,47 @@
 
 A gamified web3 safety education platform. Users play as a detective who investigates suspicious airdrops, phishing sites, fake support DMs, rugpull tokens, and malicious approvals. Each mission is a short detective case: review evidence, tag red flags, answer quiz questions, and deliver a verdict.
 
+## Phase 4 — Anti-cheat + Leaderboard (live ✓)
+
+🌐 **Live app:** https://scam-detective-zeta.vercel.app
+
+| Contract V2 (anti-cheat) | Address |
+|--------------------------|---------|
+| SafetyBadgeV2 (EIP-712 signed mint) | [`0xf24Da065E40F29a3d8d6ed20cce9bf3ce85e6869`](https://sepolia.basescan.org/address/0xf24Da065E40F29a3d8d6ed20cce9bf3ce85e6869) |
+| ReputationScore (V2)               | [`0x981421c66FB79350b4d3D947C84F6593b2891c1C`](https://sepolia.basescan.org/address/0x981421c66FB79350b4d3D947C84F6593b2891c1C) |
+
+### Anti-cheat (EIP-712 signed proofs)
+- Server signer wallet (separate from deployer) lives in Vercel env (`SIGNER_PRIVATE_KEY`)
+- `/api/proof` endpoint signs `MintProof(user, missionId, deadline)` only when client passes the case
+- Smart contract `mintWithProof()` verifies signer recovery + deadline freshness
+- Open `mint()` is disabled by default (`openMintEnabled = false`); owner can toggle for emergencies
+- Foundry test suite: 14/14 passing — covers expired proof, wrong signer, replay-to-other-user, signer rotation
+- E2E verified on-chain: token #2 minted via signed proof, replay to different wallet → `InvalidSignature` revert
+
+### Leaderboard (`/leaderboard`)
+- Reads `BadgeMinted` events directly from Base Sepolia — no DB, no indexer required
+- Pagination handles RPC's 2000-block cap automatically
+- Auto-refreshes every 60s via Vercel ISR
+- Sorted by total XP, then badge count
+
+### V1 → V2 migration
+- V1 holders auto-airdropped to V2 at deploy time via `airdropBadge()`
+- V1 contracts at `0xF94c8ccd…6E81` / `0x4F4B5A00…f7FC` deprecated but still readable
+
+## Phase 3B — Vercel Production Deploy (live ✓)
+
+🌐 **Live app:** https://scam-detective-zeta.vercel.app
+
+- ✅ Frontend deployed to Vercel production
+- ✅ `setBaseURI` + `configureMissionBySlug` updated on-chain (6 txs) — `tokenURI()` now resolves to live domain
+- ✅ Badge metadata + SVG reachable: token #1 will display correctly on Basescan, OpenSea, wallet apps
+- ✅ All 7 routes smoke-tested at 200 OK (homepage, /missions, /profile, all 5 case pages, /badges/*.json, /badges/*.svg)
+
+### Phase 4 — Anti-cheat + leaderboard (next)
+- EIP-712 signed proof from server: user must actually pass the case before mint succeeds
+- Public leaderboard at `/leaderboard` reading on-chain XP via `ReputationScore`
+- Daily challenge mode
+
 ## Phase 3 — On-chain Layer (deployed ✓)
 
 Soulbound badges live on Base Sepolia.

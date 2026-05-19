@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   useAccount,
   useReadContract,
@@ -23,18 +23,20 @@ export type MintStatus =
   | "checking"            // reading on-chain ownership
   | "already-minted"      // user already owns the badge
   | "ready"               // can mint now
-  | "pending"             // tx submitted, waiting for confirmation
+  | "fetching-proof"      // requesting EIP-712 proof from /api/proof
   | "submitting"          // user is in wallet popup
+  | "pending"             // tx submitted, waiting for confirmation
   | "success"             // tx confirmed
   | "error";
 
-export function useMintBadge(slug: string) {
+export function useMintBadge(slug: string, passed = false) {
   const { address, chainId, isConnected } = useAccount();
   const configured = isContractsConfigured();
-
   const missionId = useMemo(() => missionIdOf(slug), [slug]);
 
-  // Read current ownership — only when configured + connected
+  const [proofError, setProofError] = useState<string | null>(null);
+  const [fetchingProof, setFetchingProof] = useState(false);
+
   const { data: currentTokenId, refetch: refetchOwnership } = useReadContract({
     address: CONTRACTS.safetyBadge,
     abi: safetyBadgeAbi,
@@ -67,18 +69,39 @@ export function useMintBadge(slug: string) {
     query: { enabled: !!txHash },
   });
 
-  const mint = useCallback(() => {
+  const mint = useCallback(async () => {
     if (!configured || !address) return;
-    writeContract({
-      address: CONTRACTS.safetyBadge,
-      abi: safetyBadgeAbi,
-      functionName: "mintBySlug",
-      args: [slug],
-      chainId: BASE_SEPOLIA_CHAIN_ID,
-    });
-  }, [address, configured, slug, writeContract]);
+    setProofError(null);
+    setFetchingProof(true);
+    try {
+      const res = await fetch("/api/proof", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: address, slug, passed }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error ?? `Proof request failed (${res.status})`);
+      }
+      const { signature, deadline } = (await res.json()) as {
+        signature: `0x${string}`;
+        deadline: number;
+      };
 
-  // Refetch ownership after tx confirms
+      writeContract({
+        address: CONTRACTS.safetyBadge,
+        abi: safetyBadgeAbi,
+        functionName: "mintWithProof",
+        args: [missionId, BigInt(deadline), signature],
+        chainId: BASE_SEPOLIA_CHAIN_ID,
+      });
+    } catch (err) {
+      setProofError(err instanceof Error ? err.message : "Failed to fetch proof");
+    } finally {
+      setFetchingProof(false);
+    }
+  }, [address, configured, slug, passed, missionId, writeContract]);
+
   if (txConfirmed && !ownsBadge) {
     void refetchOwnership();
   }
@@ -90,7 +113,8 @@ export function useMintBadge(slug: string) {
     if (txConfirmed) return "success";
     if (txLoading) return "pending";
     if (walletPending) return "submitting";
-    if (writeError || txError) return "error";
+    if (fetchingProof) return "fetching-proof";
+    if (writeError || txError || proofError) return "error";
     if (ownsBadge) return "already-minted";
     if (currentTokenId === undefined) return "checking";
     return "ready";
@@ -101,7 +125,9 @@ export function useMintBadge(slug: string) {
     mint,
     txHash,
     tokenId: currentTokenId as bigint | undefined,
-    error: writeError ?? txError,
+    error: proofError
+      ? new Error(proofError)
+      : (writeError ?? txError ?? null),
     reset,
     basescanTx: txHash ? `${BASESCAN_BASE}/tx/${txHash}` : undefined,
     basescanBadge: ownsBadge && address

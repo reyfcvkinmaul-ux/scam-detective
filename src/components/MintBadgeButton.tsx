@@ -18,12 +18,14 @@ export function MintBadgeButton({
   slug,
   badgeName,
   badgeEmoji,
+  passed,
 }: {
   slug: string;
   badgeName: string;
   badgeEmoji: string;
+  passed: boolean;
 }) {
-  const { status, mint, basescanTx, basescanBadge, error } = useMintBadge(slug);
+  const { status, mint, basescanTx, basescanBadge, error } = useMintBadge(slug, passed);
   const { switchChain, isPending: switching } = useSwitchChain();
 
   if (status === "not-configured") {
@@ -117,7 +119,7 @@ export function MintBadgeButton({
     );
   }
 
-  const busy = status === "pending" || status === "submitting" || status === "checking";
+  const busy = status === "pending" || status === "submitting" || status === "checking" || status === "fetching-proof";
 
   return (
     <div className="space-y-2">
@@ -129,7 +131,9 @@ export function MintBadgeButton({
         {busy ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            {status === "submitting"
+            {status === "fetching-proof"
+              ? "Requesting proof…"
+              : status === "submitting"
               ? "Confirm in wallet…"
               : status === "pending"
               ? "Waiting for confirmation…"
@@ -138,12 +142,12 @@ export function MintBadgeButton({
         ) : (
           <>
             <Sparkles className="w-4 h-4" />
-            Mint badge on-chain (free)
+            Mint badge on-chain (signed proof)
           </>
         )}
       </button>
       <div className="text-xs text-ink-low">
-        Soulbound NFT on Base Sepolia · gas only · cannot be transferred
+        Soulbound NFT on Base Sepolia · gas only · server-signed mint proof (anti-cheat)
       </div>
       {status === "error" && error && (
         <div className="text-xs text-warn-soft inline-flex items-center gap-1.5 chip chip-warn">
