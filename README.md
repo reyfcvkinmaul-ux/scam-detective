@@ -1,185 +1,197 @@
-# Scam Detective — Web3 Safety Academy
+# 🕵️ Scam Detective — Web3 Safety Academy
 
-> Learn to detect crypto scams before they detect you.
+> **Learn to detect crypto scams before they detect you.**
 
-A gamified web3 safety education platform. Users play as a detective who investigates suspicious airdrops, phishing sites, fake support DMs, rugpull tokens, and malicious approvals. Each mission is a short detective case: review evidence, tag red flags, answer quiz questions, and deliver a verdict.
+A gamified web3 safety education platform built on Base Sepolia. Users play as a detective investigating real scam patterns — fake airdrops, seed phrase phishing, rugpull tokens, fake support DMs, malicious token approvals — and earn **soulbound NFT badges** for each case they solve.
 
-## Phase 4 — Anti-cheat + Leaderboard (live ✓)
+---
 
-🌐 **Live app:** https://scam-detective-zeta.vercel.app
+## 🚀 Live Demo
 
-| Contract V2 (anti-cheat) | Address |
-|--------------------------|---------|
-| SafetyBadgeV2 (EIP-712 signed mint) | [`0xf24Da065E40F29a3d8d6ed20cce9bf3ce85e6869`](https://sepolia.basescan.org/address/0xf24Da065E40F29a3d8d6ed20cce9bf3ce85e6869) |
-| ReputationScore (V2)               | [`0x981421c66FB79350b4d3D947C84F6593b2891c1C`](https://sepolia.basescan.org/address/0x981421c66FB79350b4d3D947C84F6593b2891c1C) |
+| | |
+|---|---|
+| **App**           | https://scam-detective-zeta.vercel.app |
+| **Repo**          | https://github.com/reyfcvkinmaul-ux/scam-detective |
+| **Network**       | Base Sepolia (chainId 84532) |
+| **Tagline**       | *Learn to detect crypto scams before they detect you.* |
 
-### Anti-cheat (EIP-712 signed proofs)
-- Server signer wallet (separate from deployer) lives in Vercel env (`SIGNER_PRIVATE_KEY`)
-- `/api/proof` endpoint signs `MintProof(user, missionId, deadline)` only when client passes the case
-- Smart contract `mintWithProof()` verifies signer recovery + deadline freshness
-- Open `mint()` is disabled by default (`openMintEnabled = false`); owner can toggle for emergencies
-- Foundry test suite: 14/14 passing — covers expired proof, wrong signer, replay-to-other-user, signer rotation
-- E2E verified on-chain: token #2 minted via signed proof, replay to different wallet → `InvalidSignature` revert
+### Try It in 60 Seconds
+1. Visit https://scam-detective-zeta.vercel.app
+2. Connect MetaMask / OKX / any EIP-6963 injected wallet, switch to **Base Sepolia**
+3. Open *Free Airdrop Alert* → tag red flags → answer quiz → deliver verdict
+4. Click **Mint badge on-chain (signed proof)** — receive a soulbound ERC-721 you can't sell or transfer
+5. Check `/leaderboard` and `/profile` — your XP is now public on-chain
 
-### Leaderboard (`/leaderboard`)
-- Reads `BadgeMinted` events directly from Base Sepolia — no DB, no indexer required
-- Pagination handles RPC's 2000-block cap automatically
-- Auto-refreshes every 60s via Vercel ISR
-- Sorted by total XP, then badge count
+> Need a Base Sepolia faucet? https://www.alchemy.com/faucets/base-sepolia
 
-### V1 → V2 migration
-- V1 holders auto-airdropped to V2 at deploy time via `airdropBadge()`
-- V1 contracts at `0xF94c8ccd…6E81` / `0x4F4B5A00…f7FC` deprecated but still readable
+---
 
-## Phase 3B — Vercel Production Deploy (live ✓)
+## 🎯 Why This Matters
 
-🌐 **Live app:** https://scam-detective-zeta.vercel.app
+Crypto users lose **billions per year** to scams that almost always look the same in hindsight. Yet there's no fun, gamified way to *practice* detecting these patterns before encountering them in the wild.
 
-- ✅ Frontend deployed to Vercel production
-- ✅ `setBaseURI` + `configureMissionBySlug` updated on-chain (6 txs) — `tokenURI()` now resolves to live domain
-- ✅ Badge metadata + SVG reachable: token #1 will display correctly on Basescan, OpenSea, wallet apps
-- ✅ All 7 routes smoke-tested at 200 OK (homepage, /missions, /profile, all 5 case pages, /badges/*.json, /badges/*.svg)
+Scam Detective turns 5 of the most common scam categories into bite-sized investigation cases. Each completed case mints a **soulbound badge** — your on-chain proof of detective skill that follows your wallet forever. Build a reputation other dApps can verify; can't be bought, can't be sold, can't be sybil-farmed.
 
-### Phase 4 — Anti-cheat + leaderboard (next)
-- EIP-712 signed proof from server: user must actually pass the case before mint succeeds
-- Public leaderboard at `/leaderboard` reading on-chain XP via `ReputationScore`
-- Daily challenge mode
+---
 
-## Phase 3 — On-chain Layer (deployed ✓)
+## 🧰 Tech Stack
 
-Soulbound badges live on Base Sepolia.
+**Smart Contracts** — Solidity 0.8.24, OpenZeppelin v5, Foundry
+- `SafetyBadgeV2.sol` — ERC-721 + EIP-5192 (soulbound) + EIP-712 (signed mint proofs)
+- `ReputationScore.sol` — read-only XP aggregator across all minted badges
+
+**Frontend** — Next.js 14 (App Router), TypeScript, Tailwind, Framer Motion
+- wagmi v2 + viem (multi-injected, EIP-6963 wallet discovery)
+- zustand for local profile state
+- SWR for leaderboard refresh
+
+**Anti-cheat** — Off-chain Node.js signer in Vercel env signs `MintProof(user, missionId, deadline)` typed data. Smart contract verifies signature on `mintWithProof()`. Replay attacks revert with `InvalidSignature`.
+
+**Hosting** — Vercel (frontend + serverless API routes), Base Sepolia RPC for reads
+
+---
+
+## 📜 Deployed Contracts (Base Sepolia)
 
 | Contract | Address |
 |----------|---------|
-| SafetyBadge (ERC-5192 SBT)  | [`0xF94c8ccd776d5b13095199B57F775AfDA9AE6E81`](https://sepolia.basescan.org/address/0xF94c8ccd776d5b13095199B57F775AfDA9AE6E81) |
-| ReputationScore             | [`0x4F4B5A00D9b6DC8659947b7AF97855A29978f7FC`](https://sepolia.basescan.org/address/0x4F4B5A00D9b6DC8659947b7AF97855A29978f7FC) |
+| **SafetyBadgeV2** (EIP-712 signed mint) | [`0xf24Da065E40F29a3d8d6ed20cce9bf3ce85e6869`](https://sepolia.basescan.org/address/0xf24Da065E40F29a3d8d6ed20cce9bf3ce85e6869) |
+| **ReputationScore**                     | [`0x981421c66FB79350b4d3D947C84F6593b2891c1C`](https://sepolia.basescan.org/address/0x981421c66FB79350b4d3D947C84F6593b2891c1C) |
 
-- ✅ ERC-721 + EIP-5192 soulbound (locked, non-transferable). 1 badge per (wallet, missionId)
-- ✅ ReputationScore aggregator: total XP + badge count read on-chain
-- ✅ Foundry test suite: 15/15 passing
-- ✅ All 5 missions configured at deploy time
-- ✅ E2E verified on-chain: token #1 minted, `locked()` = true, ReputationScore reads 120 XP
-- ✅ Source verification submitted to Sourcify
-- ✅ Frontend mint button live, profile shows on-chain status
+Sample on-chain mint tx: [`0xc6b3805f…ae26`](https://sepolia.basescan.org/tx/0xc6b3805fa0a133bc30116daa14ec67b2997a31ee171de58661594ca2a691ae26)
 
-### Phase 3B — Vercel + Verified Etherscan (next)
-- Deploy frontend to Vercel
-- Verify both contracts on Basescan (needs free API key from basescan.org)
-- Optional: server-signed proofs (EIP-712) so users can't mint without actually passing a case
+---
 
-## Phase 2 — Wallet auth + 5 playable cases
+## 🔐 Anti-Cheat Architecture
 
-Wallet login (MetaMask, OKX, EIP-6963 multi-injected) + local persistence + all 5 cases playable end-to-end.
+```
+   Browser              Vercel Serverless          Base Sepolia
+  ──────────            ──────────────────         ───────────────
+   user passes  ──POST──▶ /api/proof
+   case quiz             validates passed=true
+                         signs MintProof EIP-712
+                         with SIGNER_PRIVATE_KEY
+                         (env var, never exposed)
+                ◀──sig────
+   wallet signs
+   mintWithProof
+   tx              ───────────────────────────▶ mintWithProof()
+                                                  ↳ recover signer
+                                                  ↳ check deadline
+                                                  ↳ check no double-mint
+                                                  ↳ mint soulbound NFT
+                                                  ↳ aggregate XP
+```
 
-- ✅ wagmi v2 + viem, configured for Base Sepolia
-- ✅ Connect modal: MetaMask, OKX Wallet, plus generic injected (Rabby/Trust/Frame/etc)
-- ✅ Wallet badge in header with copy/profile/disconnect dropdown, wrong-chain switch hint
-- ✅ Zustand profile store, persisted to localStorage, scoped per wallet address (or "guest")
-- ✅ Per-mission completion tracking: best-score wins, XP delta only on improvement
-- ✅ Daily streak counter (current + longest)
-- ✅ Soulbound badges collected per mission slug
-- ✅ Mission dashboard: completion checkmarks, score chips, retry indicator, total XP/badges/streak
-- ✅ Profile page: badge gallery, stat cards, recent activity timeline
-- ✅ All 5 cases populated and playable: Free Airdrop, Seed Phrase Phishing, Rugpull Token, Fake Customer Support, Malicious Approval
+- **`mint()` open path is disabled by default** — only `mintWithProof()` works in production
+- Server signer wallet (`0x4c8B…7CdE`) is **separate** from deployer; rotatable via `setSigner()`
+- Replay attacks → `InvalidSignature` revert (proof is bound to specific user)
+- Expired proofs → `ProofExpired` revert (5-minute deadline)
+- Owner can toggle `openMintEnabled` for emergencies
 
-## Phase 1 — MVP (initial commit)
+---
 
-Frontend-only, no wallet, no backend, no contracts. Five mission categories, **one playable case** end-to-end:
+## 🏆 Leaderboard (`/leaderboard`)
 
-- ✅ Cyber-detective dark theme (Tailwind + Framer Motion)
-- ✅ Homepage with hero, demo case preview, and how-it-works
-- ✅ Mission dashboard with 5 cards (1 playable, 4 locked)
-- ✅ Playable case: **Free Airdrop Alert** — 5 evidence tabs, 8 red flags, 3-question quiz, verdict, scoring, badge unlock
-- ✅ Click-to-tag red flag mechanic on real evidence text
-- ✅ Animated score reveal + soulbound-style badge ceremony
+Fully trustless: aggregates `BadgeMinted` events from the blockchain directly via viem.
+- **No database, no indexer** — `eth_getLogs` with 2000-block pagination
+- 60s ISR cache
+- Sorted by total XP, then badge count
+- Top 50 detectives shown with Basescan deep-links
 
-## Roadmap
+---
 
-### Phase 2 — Auth + Persistence (next)
-- Privy (social + wallet, embedded wallet for non-crypto users)
-- Supabase (Postgres) for user progress, mission history, leaderboard
-- 4 more playable cases (Seed Phrase Phishing, Rugpull Token, Fake Support, Malicious Approval)
-- Daily streaks, weekly missions
+## 🧪 Tests & Verification
 
-### Phase 2B — Sync + Leaderboard (next)
-- Supabase + SIWE for cross-device sync
-- Public seasonal leaderboard
-- Daily challenge endpoint with curated case-of-the-day
+| Suite | Status |
+|-------|--------|
+| `forge test --match-contract SafetyBadgeTest`   | 15/15 ✅ |
+| `forge test --match-contract SafetyBadgeV2Test` | 14/14 ✅ |
+| End-to-end on-chain mint via signed proof       | ✅ |
+| Replay attack from another wallet               | reverts `InvalidSignature` ✅ |
+| Soulbound transfer attempt                      | reverts ✅ |
+| Production smoke test (7 routes)                | 200 OK ✅ |
 
-### Phase 3 — On-chain Layer
-- `SafetyBadge` (ERC-5192 soulbound) on Base Sepolia
-- `ReputationScore` aggregating completed cases per wallet
-- `MissionRegistry` for sponsor-funded reward pools
-- IPFS metadata via Pinata
-- Web3 Safety Passport public profile page
+---
 
-### Phase 4 — AI + Sponsorship
-- LLM-generated case variants via 9router (kr/claude-opus, cx/gpt)
-- Personalized difficulty
-- Sponsor admin panel (wallets, exchanges create branded cases)
+## 📂 Repo Structure
 
-## Stack
+```
+scam-detective/
+├── contracts/                    Foundry project
+│   ├── src/
+│   │   ├── SafetyBadge.sol       V1 (legacy, deployed)
+│   │   ├── SafetyBadgeV2.sol     V2 with EIP-712 signed mint (live)
+│   │   └── ReputationScore.sol   XP aggregator
+│   ├── script/
+│   │   ├── Deploy.s.sol          V1 deploy
+│   │   └── DeployV2.s.sol        V2 deploy + V1 migration airdrop
+│   └── test/
+│       ├── SafetyBadge.t.sol     15 tests
+│       └── SafetyBadgeV2.t.sol   14 tests
+└── src/
+    ├── app/
+    │   ├── page.tsx              Landing
+    │   ├── missions/             5 detective cases
+    │   ├── profile/              Wallet-scoped stats + on-chain badges
+    │   ├── leaderboard/          Top 50 detectives
+    │   └── api/
+    │       ├── proof/route.ts    EIP-712 signer endpoint
+    │       └── leaderboard/route.ts   On-chain event aggregator
+    ├── lib/
+    │   ├── wagmi.ts              Base Sepolia config
+    │   ├── missions.ts           5 missions (all data-driven)
+    │   ├── profile.ts            zustand + localStorage persistence
+    │   └── contracts/            Addresses + ABIs + helpers
+    └── components/
+        ├── ConnectWalletButton.tsx
+        ├── MintBadgeButton.tsx
+        └── Providers.tsx
+```
 
-- **Framework:** Next.js 14 (App Router) + TypeScript
-- **Styling:** Tailwind CSS + custom cyber-detective theme tokens
-- **Animation:** Framer Motion
-- **Icons:** lucide-react
-- **Target chain (Phase 3):** Base Sepolia → Base mainnet
-- **Smart contracts (Phase 3):** Foundry + Solidity, ERC-5192 soulbound
+---
 
-## Run locally
+## 🛠️ Local Development
 
 ```bash
+# Frontend
+git clone https://github.com/reyfcvkinmaul-ux/scam-detective.git
+cd scam-detective
 npm install
-npm run dev
-# → http://localhost:3000
+npm run dev               # http://localhost:3000
+
+# Contracts
+cd contracts
+forge install
+forge build
+forge test -vv
+
+# Deploy your own (Base Sepolia)
+cp .env.example .env      # paste PRIVATE_KEY + RPC
+forge script script/DeployV2.s.sol --broadcast \
+  --rpc-url $BASE_SEPOLIA_RPC_URL \
+  --private-key $PRIVATE_KEY
 ```
 
-Build:
+---
 
-```bash
-npm run build
-npm run start
-```
+## 🌱 What's Next
 
-## Project structure
+- **Daily challenge mode** — random case per UTC day with bonus XP
+- **Sponsored missions** — projects can fund mission completions, users earn USDC + badge
+- **Mainnet move** — Base mainnet deployment after community feedback
+- **More cases** — currently 5, target 20+ with submissions from the community
+- **ZK-proof of completion** — replace the trusted signer with a zero-knowledge proof of correct answers
 
-```
-src/
-├── app/
-│   ├── layout.tsx           # Root layout, dark mode
-│   ├── page.tsx             # Homepage
-│   ├── globals.css          # Theme tokens, panel/btn classes, redflag spans
-│   └── missions/
-│       ├── page.tsx         # Dashboard (5 cards)
-│       └── [slug]/
-│           ├── page.tsx     # Server component, getMission()
-│           └── MissionView.tsx  # Client: tabs, redflag tagging, quiz, verdict, result
-└── lib/
-    ├── missions.ts          # Static mission data + types
-    └── utils.ts             # cn() helper (clsx + tailwind-merge)
-```
+---
 
-## Mission data model
+## 📜 License
 
-Missions are authored in `src/lib/missions.ts` as typed TypeScript objects:
+MIT — fork it, remix it, ship your own scam-education platform.
 
-- `evidence[]` — tabs (social post, website, wallet popup, transaction, DM, etc.)
-- `redFlags[]` — substrings that match inside evidence bodies; users click them to tag
-- `quiz[]` — multiple-choice questions with explanations
-- `correctVerdict` — `"safe" | "dangerous"`
-- `badge` — soulbound badge metadata awarded on pass
+---
 
-The `EvidenceBody` renderer auto-splits each tab's text by `redFlags.text` matches, longest-first to avoid overlap. Each match becomes a clickable `<span>` that toggles the flag.
+## 🙏 Acknowledgments
 
-## Scoring
-
-- 40% — red flags tagged (proportion found)
-- 40% — quiz questions correct
-- 20% — verdict correct
-
-Pass = score ≥ 70 AND verdict correct → unlock badge.
-
-## License
-
-MIT (or pick what makes sense for the team)
+Built with love and a lot of `cast send` for the **MiMo** ecosystem.
+Thanks to the OpenZeppelin team for battle-tested contracts and to Foundry for making Solidity testing actually fun.
